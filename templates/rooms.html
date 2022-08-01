@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #tableID{
+            float: left;
+            margin-left: 35%;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Welcome to our reservation system</h1>
+    <div id="tableID">
+        <table >
+            <!--THIS IS FOR TABLE HEADINGS-->
+            <tr>
+                <th>ROOM ID</th>
+                <th>ROOM PRICE</th>
+                <th>ROOM INFO</th>
+                <th>AVAILABLE DATE</th>
+            </tr>
+            <!--I USED FOR LOOP IN PYTHON LANGUAGE TO FILL ROWS-->
+            {% for result in results %}
+            <tr>
+                <td id="ID">{{ result[0] }}</td>
+                <td id="price"><button id="price_">{{ result[1]  }}</button></td>
+                <td id="info">{{ result[2]  }}</td>
+                <td id="date">{{ result[3]  }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <!--if we wanna flash a message here we can insert it-->
+                    <div class="alert {{category}} alert-dismissible fade show">{{message}}</div>
+                    {% endfor %}
+                {% endif %}
+        {% endwith %}
+            <div style="text-align: center;">
+                <br><br>
+                <input type="text" id="amount" value="" readonly>
+                <p id="balance"></p>
+                <button id="pay">PAY</button>
+                <button id="acc">ConnectAccounts</button>
+                <button id="check_in">Check-in</button>
+                <button id="control">Control Check-in</button>
+                <button id="cancel">cancel</button>
+                <div id="password"></div>
+            </div>
+            <!------------------------------------------------------------------------------------------------------------------------------------------------------------------------>
+        <!--web3 jquert source codes-->   
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script>
+            //FUNCTION THAT GETS ALL ACCOUNTS FROM METAMASK AND GETS ADDRESS OF WHAT WE SELECT
+            function getAccounts(callback) {
+                web3.eth.getAccounts((error,result) => {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        callback(result);
+                    }
+                });
+            }
+            //CONNECTING SITE TO METAMASK
+            var accBtn=document.getElementById("acc");
+            accBtn.addEventListener("click",function(){
+                ethereum.request({ method: 'eth_requestAccounts' });
+            })
+            //WE GET AMOUNT FROM THE ROOM
+            var amountDoc=document.getElementById("amount");
+            //ADDING BUTTON FUNCTIONALITIES
+            const buttons = document.querySelectorAll("#price_")
+            for (const button of buttons) {
+                button.addEventListener('click', function(e) {
+                    let val;
+                    val = e.target.textContent;//IT TURNS INTO OBJECT THAT HAS CLICKED
+                    //CHANGING THE TEXT AREA VALUE
+                    amountDoc.value = val;
+                    e.preventDefault(); 
+                });
+            }
+            //HOTEL.SOL CONTRACT 
+            var contract;
+            $(document).ready(function(){
+                const web3 = new Web3(new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545"));
+                var address ="0xEba011699Cb8032d762c3BA94f1e399c24C64847";
+                var abi = [
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "Check_In",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "balanceOfSC",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "cancel",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "check_in",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "functionCalled",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "sendEther",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	}
+];
+                contract = new web3.eth.Contract(abi,address);
+            })
+            //CALL METODU BILGI OKUR SEND METODU FONKSIYON CAGIRIR
+
+            //we send ether to our contract 
+            $('#pay').click(function(){
+                getAccounts(function(result) {
+                    //print account that used by MetaMask provider
+                    console.log("From This Account: " + result[0]);
+                    //console.log(result[1]); ==> Undefined 
+                    amt=0;
+                    amt=(parseInt($('#amount').val() * 1000000000000000000)).toString();
+                    amountDoc.value=" ";
+                    return contract.methods.sendEther().send({from:result[0],value:amt}); 
+                });
+                console.log(contract.methods.functionCalled().call()); //wei 
+            });
+
+            //Check-in button sends money from contract to hotel
+            $('#check_in').click(function(){
+                getAccounts(function(result) {
+                    document.querySelector("#password").innerHTML="Your Password is : 258742";
+                    //we use check in function it uses gas.
+                    return contract.methods.check_in().send({from:result[0]});  //wei 
+                });
+                //Bu sekildede kontrol edebiliriz console.log(contract.methods.isCheckedIn().call());
+            })
+
+            //this button gets eth from contract when cancelled
+            $('#cancel').click(function(){
+                getAccounts(function(result) {
+                    //we use check in function it uses gas and get our money back
+                    return contract.methods.cancel().send({from:result[0]});  //wei 
+                });
+                
+            })
+            $('#control').click(function(){
+                getAccounts(function(result) {
+                    //we printed if the checked-in or not
+                    return console.log(contract.methods.Check_In().call());  //wei 
+                });
+            })
+        </script>
+    </div>
+</body>
+</html>

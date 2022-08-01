@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        #inputArea{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+                <h1>Sign in</h1>
+                <hr>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <!--bootstrapten aldigimiz kodu alert veya warning olarak degistirebiliyoruz-->
+                        <div class="alert {{category}} alert-dismissible fade show">{{message}}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                        </div>
+            <div id="inputArea">
+                <form action="/signup.html" method="POST"> 
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" name="username">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" name="email" style="margin-left: 24px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign-in</button>
+                </form>       
+            </div>
+                
+                
+</body>
+</html>

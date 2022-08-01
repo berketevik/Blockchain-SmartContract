@@ -1,0 +1,13 @@
+    //Contrat'a fonksiyon kullanmadan direkt olarak gonderdik
+            await web3.eth.sendTransaction({
+                from :addresses[0],
+                to: contract.options.address,
+                value : '100000'
+            });
+        
+            //Direk olarak bir adrese ether gonderdik
+            await.web3.eth.sendTransaction({
+                from:addresses[0],
+                to:adresses[1],
+                value:'100000'
+            });
